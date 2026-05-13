@@ -1,0 +1,16 @@
+torch>=2.0
+torchvision
+torchaudio
+
+numpy
+pillow
+matplotlib
+opencv-python
+scipy
+tqdm
+pyyaml
+yacs
+kornia
+tensorboardX
+
+git+https://github.com/cheind/py-thin-plate-spline.git
