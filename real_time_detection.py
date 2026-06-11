@@ -4,6 +4,8 @@ import detect_people
 def fun(camera_device=0):
     window_name = "Real-Time Detection"
     cap = cv2.VideoCapture(camera_device)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     if not cap.isOpened():
         print("Error: Could not connect to the webcam.")
         return
