@@ -4,35 +4,48 @@ import os
 
 CFG_PATH = "yolov2/yolo.cfg"
 WEIGHTS_PATH = "yolov2/yolov2.weights"
-
 CONFIDENCE_THRESHOLD = 0.5
 NMS_THRESHOLD = 0.4
+
+def save_image(image, output_dir, filename):
+    if image is None:
+        return
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, filename)
+    cv2.imwrite(output_path, image)
+
+def load_image(input_dir, filename):
+    input_path = os.path.join(input_dir, filename)
+    image = cv2.imread(input_path)
+    if image is None:
+        print(f"Could not load image: {input_path}")
+        return None
+    return image
 
 #model loading 
 def load_model():
     print("Loading YOLOv2 model")
-
     net = cv2.dnn.readNetFromDarknet(CFG_PATH, WEIGHTS_PATH)
-
     layer_names = net.getLayerNames()
     output_layers = [ layer_names[i - 1] for i in net.getUnconnectedOutLayers() ]
-
     return net, output_layers
 
+def apply_boxes(image, boxes, confidences):
+    for (x, y, w, h), c in zip(boxes, confidences):
+        cv2.rectangle(
+            image,
+            (x, y),
+            (x + w, y + h),
+            (0, 255, 0),
+            2
+        )
+        cv2.putText(image, f"Person: {c:.2f}", (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)   
+    return image
 
-def detect_people(net, output_layers, dir_path, filename):
-    image_path = os.path.join(dir_path, filename)
-    image = cv2.imread(image_path)
-
-    if image is None:
-        print(f"Skipping invalid image: {image_path}")
-        return []
-
+def detect_people(net, output_layers, image):
     (H, W) = image.shape[:2]
     blob = cv2.dnn.blobFromImage( image, 1 / 255.0, (416, 416), swapRB=True, crop=False )
-
     net.setInput(blob)
-
     outputs = net.forward(output_layers)
 
     boxes = []
@@ -66,35 +79,37 @@ def detect_people(net, output_layers, dir_path, filename):
 
     return (final_boxes, confidences)
 
-def run_detect_peole(dir_path, max_images=None):
+def run_detect_peole(input_dir, max_images=None):
+    output_dir = input_dir + "_detected"
     boxes_dict = {}
     net, output_layers = load_model()
 
-    files = [
-        f for f in os.listdir(dir_path)
+    files = sorted([
+        f for f in os.listdir(input_dir)
         if f.lower().endswith((".jpg", ".jpeg", ".png", ".bmp"))
-    ]
-    files = sorted(files)
+    ])
 
     if max_images is not None:
         files = files[:max_images]
     print(f"Running detection on {len(files)} images")
 
     for filename in files:
-        boxes = detect_people(
+        image = load_image(input_dir, filename)
+        boxes, confidences = detect_people(
             net,
             output_layers,
-            dir_path,
-            filename
+            image
         )
+        image = apply_boxes(image, boxes, confidences)
+        save_image(image, output_dir, "detected_" + filename)
         boxes_dict[filename] = boxes
         print(f"{filename}: {len(boxes)} people detected")
 
+    print()
     return boxes_dict
 
 if __name__ == "__main__":
-    results = run_detect_peole(
-        "data/test_images",
-        #max_images=5   #test 5 for now
-    )
-    print("\nDONE")
+    run_detect_peole("data/test_images")
+    run_detect_peole("data/patch_images")
+
+    print("DONE")
