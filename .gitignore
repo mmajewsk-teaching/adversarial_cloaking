@@ -41,3 +41,5 @@ Thumbs.db
 *.*~
 
 .flake8.cache
+
+.jpg

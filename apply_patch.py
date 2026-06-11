@@ -60,7 +60,8 @@ def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
         print("Error: Failed to save the image.")
 
 def run_apply_patch(dir_path, patch_path, output_path, boxes_dict):
-    for filename in os.listdir(dir_path):
+    files = sorted(os.listdir(dir_path))[:5]
+    for filename in files:
         image_path = os.path.join(dir_path, filename)
         if os.path.isfile(image_path) and filename in boxes_dict:
             apply_patch(dir_path, filename, patch_path, output_path, boxes_dict[filename])
