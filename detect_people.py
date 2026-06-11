@@ -79,7 +79,7 @@ def detect_people(net, output_layers, image):
 
     return (final_boxes, confidences)
 
-def run_detect_peole(input_dir, max_images=None):
+def run_detect_people(input_dir, max_images=None):
     output_dir = input_dir + "_detected"
     boxes_dict = {}
     net, output_layers = load_model()
@@ -91,7 +91,7 @@ def run_detect_peole(input_dir, max_images=None):
 
     if max_images is not None:
         files = files[:max_images]
-    print(f"Running detection on {len(files)} images")
+    print(f"Running detection on {len(files)} images in {input_dir}")
 
     for filename in files:
         image = load_image(input_dir, filename)
@@ -109,7 +109,6 @@ def run_detect_peole(input_dir, max_images=None):
     return boxes_dict
 
 if __name__ == "__main__":
-    run_detect_peole("data/test_images")
-    run_detect_peole("data/patch_images")
-
+    run_detect_people("data/test_images")
+    run_detect_people("data/patch_images")
     print("DONE")

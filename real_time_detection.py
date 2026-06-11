@@ -12,7 +12,6 @@ def fun(camera_device=0):
 
     net, output_layers = detect_people.load_model()
     
-
     while True:
         ret, frame = cap.read() 
         if not ret:
@@ -24,12 +23,11 @@ def fun(camera_device=0):
 
         cv2.imshow(window_name, image)
 
-        if cv2.waitKey(10) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
             break
 
-    # 5. Clean up safely when the loop breaks
     cap.release()
     cv2.destroyAllWindows()
     print("Window closed by user")
