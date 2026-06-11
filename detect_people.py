@@ -64,7 +64,7 @@ def detect_people(net, output_layers, dir_path, filename):
         for i in indices.flatten():
             final_boxes.append(boxes[i])
 
-    return final_boxes
+    return (final_boxes, confidences)
 
 def run_detect_peole(dir_path, max_images=None):
     boxes_dict = {}
@@ -95,6 +95,6 @@ def run_detect_peole(dir_path, max_images=None):
 if __name__ == "__main__":
     results = run_detect_peole(
         "data/test_images",
-        max_images=5   #test 5 for now
+        #max_images=5   #test 5 for now
     )
     print("\nDONE")

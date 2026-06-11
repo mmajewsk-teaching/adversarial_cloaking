@@ -5,7 +5,7 @@ import detect_people
 
 """Apply trained patches to detected objects on test images"""
 def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
-    image_path = base_image_path +"/"+ filename
+    image_path = os.path.join(base_image_path, filename)
     base_data = np.fromfile(image_path, dtype=np.uint8)
     base_img = cv2.imdecode(base_data, cv2.IMREAD_COLOR)
     
@@ -19,7 +19,7 @@ def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
         print(f"Error: Could not load patch image at {patch_path}")
         return
 
-    for curr_box in boxes:
+    for curr_box in boxes[0]:
         x, y, w, h = curr_box[0], curr_box[1], curr_box[2], curr_box[3]
         
         patch_w = max(1, int(w // 2))
