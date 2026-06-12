@@ -80,11 +80,11 @@ def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
     if base_img is None:
         print(f"Error: Could not load base image at {base_image_path}")
         return
-    if patch_img is None:
-        print(f"Error: Could not load patch image at {patch_path}")
+    if patch is None:
+        print(f"Error: Could not load patch image")
         return
 
-    for curr_box in boxes[0]:
+    for curr_box in boxes:
         x, y, w, h = curr_box[0], curr_box[1], curr_box[2], curr_box[3]
 
         patch_x, patch_y, patch_w, patch_h = get_patch_position(base_img, x, y, w, h)
@@ -108,7 +108,7 @@ def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
         p_start_x = start_x - patch_x
         p_end_x   = p_start_x + patch_crop_x
 
-        base_img[start_y:end_y, start_x:end_x] = patch_resized[p_start_y:p_end_y, p_start_x:p_end_x]
+        image[start_y:end_y, start_x:end_x] = patch_resized[p_start_y:p_end_y, p_start_x:p_end_x]
 
     success, encoded_image = cv2.imencode('.jpg', base_img)
     if success:
