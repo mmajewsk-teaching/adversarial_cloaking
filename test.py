@@ -4,7 +4,7 @@ import os
 
 DIR = "data/patch_images"
 
-def show_results(dir_path, max_images=5):
+def show_results(dir_path, max_images=None):
     output_path = dir_path + "_detected"
     print(f"Input: {dir_path}, Output: {output_path}")
     net, output_layers = detect_people.load_model()
@@ -13,7 +13,7 @@ def show_results(dir_path, max_images=5):
         f for f in os.listdir(dir_path)
         if f.lower().endswith((".jpg", ".jpeg", ".png", ".bmp"))
     ]
-    files = sorted(files)[:max_images]
+    files = sorted(files) if max_images is None else sorted(files)[:max_images]
 
     for filename in files:
         image_path = os.path.join(dir_path, filename)
@@ -52,5 +52,5 @@ def show_results(dir_path, max_images=5):
             encoded_image.tofile(f)
 
 if __name__ == "__main__":
-    show_results("data/test_images", max_images=5)
-    show_results("data/patch_images", max_images=5)
+    show_results("data/test_images")
+    show_results("data/patch_images")

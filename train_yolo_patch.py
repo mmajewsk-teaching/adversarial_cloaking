@@ -20,10 +20,10 @@ CFG = {
     "patch_size":   400,
     "img_size":     416,
     #for now for testing
-    "num_epochs":   50,
+    "num_epochs":   200,
     "batch_size":   4,
     "lr":           0.01,
-    "tv_weight":    2.0,
+    "tv_weight":    4.0,
     "output_dir":   "output_patches",
     "save_every":   10,
     "num_cls":      80,
