@@ -118,7 +118,6 @@ def detect_faces(image):
     return faces if len(faces) > 0 else []
 
 if __name__ == "__main__":
-    results = run_detect_people(
-        "data/test_images",
-    )
+    run_detect_people("data/test_images")
+    run_detect_people("data/patch_images")
     print("\nDONE")

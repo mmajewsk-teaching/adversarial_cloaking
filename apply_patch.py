@@ -69,16 +69,9 @@ def get_patch_position(base_img, x, y, w, h):
     return patch_x, patch_y, patch_w, patch_h
 
 
-def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
-    image_path = os.path.join(base_image_path, filename)
-    base_data  = np.fromfile(image_path, dtype=np.uint8)
-    base_img   = cv2.imdecode(base_data, cv2.IMREAD_COLOR)
-
-    patch_data = np.fromfile(patch_path, dtype=np.uint8)
-    patch_img  = cv2.imdecode(patch_data, cv2.IMREAD_COLOR)
-
-    if base_img is None:
-        print(f"Error: Could not load base image at {base_image_path}")
+def apply_patch(image, patch, boxes):
+    if image is None:
+        print(f"Error: Could not load base image")
         return
     if patch is None:
         print(f"Error: Could not load patch image")
@@ -87,11 +80,11 @@ def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
     for curr_box in boxes:
         x, y, w, h = curr_box[0], curr_box[1], curr_box[2], curr_box[3]
 
-        patch_x, patch_y, patch_w, patch_h = get_patch_position(base_img, x, y, w, h)
+        patch_x, patch_y, patch_w, patch_h = get_patch_position(image, x, y, w, h)
 
-        patch_resized = cv2.resize(patch_img, (patch_w, patch_h))
+        patch_resized = cv2.resize(patch, (patch_w, patch_h))
 
-        img_h, img_w = base_img.shape[:2]
+        img_h, img_w = image.shape[:2]
         start_y = max(0, patch_y)
         start_x = max(0, patch_x)
         end_y   = min(patch_y + patch_h, img_h)
@@ -110,29 +103,25 @@ def apply_patch(base_image_path, filename, patch_path, output_path, boxes):
 
         image[start_y:end_y, start_x:end_x] = patch_resized[p_start_y:p_end_y, p_start_x:p_end_x]
 
-    success, encoded_image = cv2.imencode('.jpg', base_img)
-    if success:
-        output_image_path = output_path + "/patch_" + filename
-        with open(output_image_path, 'wb') as f:
-            encoded_image.tofile(f)
-        print(f"Saved: {output_image_path}")
-    else:
-        print("Error: Failed to save the image.")
+    return image
 
 
-def run_apply_patch(dir_path, patch_path, output_path, boxes_dict):
-    files = [
-        f for f in sorted(os.listdir(dir_path))
+def run_apply_patch(input_dir, output_dir, patch_dir, patch_name, boxes_dict):
+    files = sorted([
+        f for f in os.listdir(input_dir)
         if f.lower().endswith((".jpg", ".jpeg", ".png", ".bmp"))
-        and os.path.isfile(os.path.join(dir_path, f))
-    ]
-    for filename in files:
-        if filename in boxes_dict:
-            print(f"\n{filename}")
-            apply_patch(dir_path, filename, patch_path, output_path, boxes_dict[filename])
+    ])
 
+    for filename in files:
+        boxes = boxes_dict[filename]
+        image = detect_people.load_image(input_dir, filename)
+        patch = detect_people.load_image(patch_dir, patch_name)
+        image = apply_patch(image, patch, boxes)
+        
+        detect_people.save_image(image, output_dir, "patch_" + filename)
 
 if __name__ == "__main__":
     os.makedirs("data/patch_images", exist_ok=True)
-    boxes_dict = detect_people.run_detect_peole("data/test_images")
-    run_apply_patch("data/test_images", "output_patches/patch_final.png", "data/patch_images", boxes_dict)
+    boxes_dict = detect_people.run_detect_people("data/test_images")
+    run_apply_patch("data/test_images", "data/patch_images", "output_patches", "experimental.jpg", boxes_dict)
+    print("DONE")
